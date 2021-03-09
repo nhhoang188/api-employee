@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@CrossOrigin
+@CrossOrigin("*")
 @RestController
 public class EmployeeApi {
     @Autowired
@@ -32,7 +32,7 @@ public class EmployeeApi {
         return result;
     }
 
-    @PostMapping("/employee")
+    @PostMapping("/create")
     public EmployeeDto createEmployee(@RequestBody EmployeeDto employeeDto) {
         return employeService.save(employeeDto);
     }
@@ -45,7 +45,7 @@ public class EmployeeApi {
     public EmployeeDto showEmploye(@PathVariable Long id){
         return employeService.findById(id);
     }
-    @PutMapping("/employee/{id}")
+    @PutMapping("/employee/edit/{id}")
     public EmployeeDto editEmployee(@PathVariable Long id, @RequestBody EmployeeDto employeeDto) {
         employeeDto.setId(id);
         return employeService.save(employeeDto);
