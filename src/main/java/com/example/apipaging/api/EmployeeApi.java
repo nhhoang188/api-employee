@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -18,14 +17,18 @@ public class EmployeeApi {
     EmployeService employeService;
 
     @GetMapping("/employee")
-    public ResultApi showEmployee(@PageableDefault() Pageable pageable, @RequestParam("page") Optional<String> page, @RequestParam("limit") Optional<String> limit) {
+    public ResultApi showEmployee(@RequestParam("page") Optional<String> page, @RequestParam("limit") Optional<String> limit,@RequestParam("sort") Optional<String> sort ) {
         ResultApi result = new ResultApi();
+        Pageable pageable;
         if (page.isPresent() && limit.isPresent()) {
             result.setPage(Integer.parseInt(page.get()));
-            pageable = PageRequest.of(Integer.parseInt(page.get()) - 1, Integer.parseInt(limit.get()), Sort.by("id"));
+            pageable = sort.map(s -> PageRequest.of(Integer.parseInt(page.get()) - 1, Integer.parseInt(limit.get()), Sort.by(s))).orElseGet(() -> PageRequest.of(Integer.parseInt(page.get()) - 1, Integer.parseInt(limit.get()), Sort.by("id")));
             result.setEmployeeList(employeService.findAll(pageable));
             result.setTotalPage((int) Math.ceil(employeService.totalItem() / Integer.parseInt(limit.get())) + 1);
         } else {
+            result.setPage(1);
+            pageable = PageRequest.of(0, 5, Sort.by("id"));
+            result.setTotalPage((int) Math.ceil(employeService.totalItem() /5));
             result.setEmployeeList(employeService.findAll(pageable));
         }
 
